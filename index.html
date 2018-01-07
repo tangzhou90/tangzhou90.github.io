@@ -303,15 +303,11 @@
       
         
           
-            <p>#symfony 数据迁移</p>
-<p>在实际开发中我们通常会随着开发进度推进,在现有的数据库里面改变表结构,增加新表等操作，我们一般在本地操作好了记录sql;<br>最后上生产库执行sql;这样不方便管理，doctrine提供了一个库可以很好的记录改变日志，在symfony中集成了doctrineMigrationsBundle</p>
-<p>###阅读文档</p>
-<p><a href="http://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html" target="_blank" rel="noopener">doctrinMigrationsBundle</a></p>
+            <h1 id="symfony-数据迁移"><a href="#symfony-数据迁移" class="headerlink" title="symfony 数据迁移"></a>symfony 数据迁移</h1><p>在实际开发中我们通常会随着开发进度推进,在现有的数据库里面改变表结构,增加新表等操作，我们一般在本地操作好了记录sql;<br>最后上生产库执行sql;这样不方便管理，doctrine提供了一个库可以很好的记录改变日志，在symfony中集成了doctrineMigrationsBundle</p>
+<h3 id="阅读文档"><a href="#阅读文档" class="headerlink" title="阅读文档"></a>阅读文档</h3><p><a href="http://symfony.com/doc/current/bundles/DoctrineMigrationsBundle/index.html" target="_blank" rel="noopener">doctrinMigrationsBundle</a></p>
 <p><a href="http://docs.doctrine-project.org/projects/doctrine-migrations/en/latest/index.html" target="_blank" rel="noopener">doctrine migration libary</a></p>
-<p>###doctrineMigrationsBundle的安装</p>
-<p><code>composer require doctrine/doctrine-migrations-bundle</code></p>
-<p>###配置</p>
-<p>sf3以及以下版本在app/config/config.yml中</p>
+<h3 id="doctrineMigrationsBundle的安装"><a href="#doctrineMigrationsBundle的安装" class="headerlink" title="doctrineMigrationsBundle的安装"></a>doctrineMigrationsBundle的安装</h3><p><code>composer require doctrine/doctrine-migrations-bundle</code></p>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>sf3以及以下版本在app/config/config.yml中</p>
 <p>sf4中安装一个bundle会生成该bundle独立配置文件 config/doctrine_migrations.yaml</p>
 <pre><code>doctrine_migrations:
    dir_name: &quot;%kernel.root_dir%/DoctrineMigrations&quot; 迁移目录
@@ -319,17 +315,15 @@
    table_name: migration_versions 迁移记录版本表的表名
    name: Application Migrations 名称
    organize_migrations: false # Version &gt;=1.2 Possible values are: &quot;BY_YEAR&quot;, &quot;BY_YEAR_AND_MONTH&quot;, false
-</code></pre><p>###使用</p>
-<pre><code>doctrine:migrations
+</code></pre><h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><pre><code>doctrine:migrations
   :diff     根据现有的实体映射信息和数据库里面比较差异.
   :execute  手动执行单个迁移版本的up或者down.
   :generate 生成一个空白的迁移类
   :migrate  执行指定版本迁移或者执行所有未执行的迁移
   :status   状态信息
   :version  手动从迁移表中添加或删除迁移版本
-</code></pre><p>####1.首先生成一个迁移空白类<br><code>php app/console doctrine:migrations:generate</code> 执行该命令之后会在Migrations目录中生成一个Version+日期时间的迁移类文件<br>在类中有up和down方法,up方法就是我们这次需要改动那些表结构的程序；down方法就是还原up里面的程序</p>
-<p>####2.编写迁移类中的up和down方法</p>
-<pre><code>&lt;?php declare(strict_types = 1);
+</code></pre><h4 id="1-首先生成一个迁移空白类"><a href="#1-首先生成一个迁移空白类" class="headerlink" title="1.首先生成一个迁移空白类"></a>1.首先生成一个迁移空白类</h4><p><code>php app/console doctrine:migrations:generate</code> 执行该命令之后会在Migrations目录中生成一个Version+日期时间的迁移类文件<br>在类中有up和down方法,up方法就是我们这次需要改动那些表结构的程序；down方法就是还原up里面的程序</p>
+<h4 id="2-编写迁移类中的up和down方法"><a href="#2-编写迁移类中的up和down方法" class="headerlink" title="2.编写迁移类中的up和down方法"></a>2.编写迁移类中的up和down方法</h4><pre><code>&lt;?php declare(strict_types = 1);
 
 namespace App\Migrations;
 
@@ -355,18 +349,14 @@ class Version20180107063439 extends AbstractMigration
         $table-&gt;dropColumn(&apos;test&apos;); //可以还原up中的操作；以防止错误之后可以回滚
     }
 }
-</code></pre><p>####3.查看状态，迁移<br><code>php app/console doctrine:migrations:status --show-versions</code> 查看版本状态以确保没有问题</p>
+</code></pre><h4 id="3-查看状态，迁移"><a href="#3-查看状态，迁移" class="headerlink" title="3.查看状态，迁移"></a>3.查看状态，迁移</h4><p><code>php app/console doctrine:migrations:status --show-versions</code> 查看版本状态以确保没有问题</p>
 <p><code>php app/console doctrine:migrations:migrate 20100621140655</code> 执行迁移 版本号可以从status命令中可以查看到</p>
 <p>执行完之后其实我们在数据库中发现有一张表migration_versions（上面配置的）里面有一条数据就是执行的版本号</p>
-<p>###杂项</p>
-<p>####跳过一个版本或者所有版本</p>
-<p><code>php app/console doctrine:migrations:version YYYYMMDDHHMMSS --add</code> 其实就是向migration_versions增加了一条数据</p>
+<h3 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h3><h4 id="跳过一个版本或者所有版本"><a href="#跳过一个版本或者所有版本" class="headerlink" title="跳过一个版本或者所有版本"></a>跳过一个版本或者所有版本</h4><p><code>php app/console doctrine:migrations:version YYYYMMDDHHMMSS --add</code> 其实就是向migration_versions增加了一条数据</p>
 <p><code>php app/console doctrine:migrations:version --add --all</code> 跳过所有；就是如果我们是一个新项目；数据库表都是新建的部署到生产环境之后通过<code>doctrine:schema:create</code> 来把所有表创建完之后；我们就不需要执行迁移，在之后的开发我们可以通过迁移的方式来进行</p>
-<p>####实体和现有的数据表比较生成迁移类</p>
-<p><code>php app/console doctrine:migrations:diff</code></p>
+<h4 id="实体和现有的数据表比较生成迁移类"><a href="#实体和现有的数据表比较生成迁移类" class="headerlink" title="实体和现有的数据表比较生成迁移类"></a>实体和现有的数据表比较生成迁移类</h4><p><code>php app/console doctrine:migrations:diff</code></p>
 <p>如果我们新增了一个实体或者改变实体文件的映射(增加了字段或者删除等)可以通过上述命令来自动生成一个迁移类文件，里面的up和down方法也已经填充好了；实际开发中这个命令才是常用</p>
-<p>####在迁移类中使用容器</p>
-<p>有时候我们需要根据一些其它服务来辅助迁移</p>
+<h4 id="在迁移类中使用容器"><a href="#在迁移类中使用容器" class="headerlink" title="在迁移类中使用容器"></a>在迁移类中使用容器</h4><p>有时候我们需要根据一些其它服务来辅助迁移</p>
 <pre><code>use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -411,8 +401,7 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
         // ... convert the data from markdown to html for instance
     }
 }
-</code></pre><p>####过滤一些表</p>
-<p><code>doctrine:migrations:diff</code> 这个比较命令是和数据库所有表和现有的实体映射文件进行比较，通常有时候我们需要过滤一些表不让其参与比较</p>
+</code></pre><h4 id="过滤一些表"><a href="#过滤一些表" class="headerlink" title="过滤一些表"></a>过滤一些表</h4><p><code>doctrine:migrations:diff</code> 这个比较命令是和数据库所有表和现有的实体映射文件进行比较，通常有时候我们需要过滤一些表不让其参与比较</p>
 <pre><code>doctrine:
     dbal:
         schema_filter: ~^(?!t_)~
