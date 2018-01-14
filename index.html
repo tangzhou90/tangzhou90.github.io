@@ -424,9 +424,11 @@ class BookFixtures extends Fixture implements DependentFixtureInterface
     function getDependencies()
     {
        return array(
-           UserFixtures::class, //保证顺序，确保user对象先存在才能执行该Book;如果没有增加顺序可能会报错；`Reference to: (user) does not exist
-</code></pre><p>`<br>           );<br>        }<br>    }</p>
-
+           UserFixtures::class, //保证顺序，确保user对象先存在才能执行该Book;如果没有增加顺序可能会报错Reference to: (user) does not exist
+       );
+    }
+}
+</code></pre>
           
         
       

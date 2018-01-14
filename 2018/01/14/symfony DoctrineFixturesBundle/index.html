@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="汤洲的博客">
 <meta property="og:description" content="我们有时候需要在数据库内置初始化一下数据，或者模拟生成一些数据用于测试，这个时候我们可以使用DoctrineFixturesBundle这个bundle 安装composer require doctrine/doctrine-fixtures-bundle 使用如果是sf4安装完成该bundle之后会自动创建 DataFixtures目录;我们一般自定仪的类放入到这里 &amp;lt;?php  /**">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-14T08:59:53.653Z">
+<meta property="og:updated_time" content="2018-01-14T09:10:12.555Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="symfony DoctrineFixturesBundle的使用">
 <meta name="twitter:description" content="我们有时候需要在数据库内置初始化一下数据，或者模拟生成一些数据用于测试，这个时候我们可以使用DoctrineFixturesBundle这个bundle 安装composer require doctrine/doctrine-fixtures-bundle 使用如果是sf4安装完成该bundle之后会自动创建 DataFixtures目录;我们一般自定仪的类放入到这里 &amp;lt;?php  /**">
@@ -420,9 +420,11 @@ class BookFixtures extends Fixture implements DependentFixtureInterface
     function getDependencies()
     {
        return array(
-           UserFixtures::class, //保证顺序，确保user对象先存在才能执行该Book;如果没有增加顺序可能会报错；`Reference to: (user) does not exist
-</code></pre><p>`<br>           );<br>        }<br>    }</p>
-
+           UserFixtures::class, //保证顺序，确保user对象先存在才能执行该Book;如果没有增加顺序可能会报错Reference to: (user) does not exist
+       );
+    }
+}
+</code></pre>
       
     </div>
     
