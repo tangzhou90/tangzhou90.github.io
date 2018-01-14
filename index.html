@@ -232,6 +232,248 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/14/symfony DoctrineFixturesBundle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="汤洲">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="汤洲的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/14/symfony DoctrineFixturesBundle/" itemprop="url">symfony DoctrineFixturesBundle的使用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-14T16:53:02+08:00">
+                2018-01-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我们有时候需要在数据库内置初始化一下数据，或者模拟生成一些数据用于测试，这个时候我们可以使用DoctrineFixturesBundle这个bundle</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><code>composer require doctrine/doctrine-fixtures-bundle</code></p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>如果是sf4安装完成该bundle之后会自动创建 DataFixtures目录;我们一般自定仪的类放入到这里</p>
+<pre><code>&lt;?php
+
+/**
+ * This file is part of sf4.
+ * Author: tangzhou
+ * Date: 2018/1/7
+ * Time: 16:32
+ * File: AppFixtures.php
+ */
+namespace  App\DataFixtures;
+
+use App\Entity\User;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\Persistence\ObjectManager;
+
+class AppFixtures extends Fixture //需要继续Fixture类
+{
+    // ...
+    private $encoder;
+    //通过构造方法可以使用其它服务
+    public function __construct(UserPasswordEncoderInterface $encoder)
+    {
+        $this-&gt;encoder = $encoder;
+    }
+        /**
+     * Load data fixtures with the passed EntityManager
+     *
+     * @param ObjectManager $manager
+     */
+    public function load(ObjectManager $manager)
+    {
+        for ($i = 0; $i&lt;=20; $i++) {
+            $user = new User();
+            $user-&gt;setName(&quot;name_&quot;.$i);
+            $manager-&gt;persist($user);
+        }
+        $manager-&gt;flush();
+    }
+}
+</code></pre><p>通过命令<code>php bin/console doctrine:fixtures:load</code> 来执行该程序;默认如果不加选项数他会清空数据库；如果是新增数据使用<code>--append</code>选项</p>
+<h3 id="使用独立的文件"><a href="#使用独立的文件" class="headerlink" title="使用独立的文件"></a>使用独立的文件</h3><pre><code>&lt;?php
+/**
+ * This file is part of sf4.
+ * Author: tangzhou
+ * Date: 2018/1/14
+ * Time: 16:06
+ * File: User1Fixtures.php
+ */
+
+namespace App\DataFixtures;
+
+use App\Entity\User;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\Persistence\ObjectManager;
+
+class UserFixtures extends Fixture
+{
+
+    /**
+     * Load data fixtures with the passed EntityManager
+     *
+     * @param ObjectManager $manager
+     */
+    public function load(ObjectManager $manager)
+    {
+
+        $user = new User();
+        $user-&gt;setName(&quot;name_card&quot;);
+        $manager-&gt;persist($user);
+        $manager-&gt;flush();
+
+        $this-&gt;addReference(&apos;user&apos;, $user); //对象分享；在其他类中可以使用
+    }
+}
+
+
+&lt;?php
+/**
+ * This file is part of sf4.
+ * Author: tangzhou
+ * Date: 2018/1/14
+ * Time: 16:06
+ * File: User2Fixtures.php
+ */
+
+namespace App\DataFixtures;
+
+use App\Entity\Book;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+
+class BookFixtures extends Fixture implements DependentFixtureInterface
+{
+    /**
+     * Load data fixtures with the passed EntityManager
+     *
+     * @param ObjectManager $manager
+     */
+    public function load(ObjectManager $manager)
+    {
+        for ($i = 31; $i&lt;=40; $i++) {
+            $card = new Book();
+            $card-&gt;setCard($this-&gt;getReference(&apos;user&apos;)); //使用上面的user的对象
+            $manager-&gt;persist($card);
+        }
+        $manager-&gt;flush();
+    }
+
+    /**
+     * This method must return an array of fixtures classes
+     * on which the implementing class depends on
+     *
+     * @return array
+     */
+    function getDependencies()
+    {
+       return array(
+           UserFixtures::class, //保证顺序，确保user对象先存在才能执行该Book;如果没有增加顺序可能会报错；`Reference to: (user) does not exist
+</code></pre><p>`<br>           );<br>        }<br>    }</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/07/doctrineMigrations/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -346,11 +588,11 @@ class Version20180107063439 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $table = $schema-&gt;getTable(&apos;test1&apos;);
-        $table-&gt;dropColumn(&apos;test&apos;); //可以还原up中的操作；以防止错误之后可以回滚
+        $table-&gt;dropColumn(&apos;test&apos;); //可以还原up中的操作；以防止错误之后可以回滚到某一版本；
     }
 }
 </code></pre><h4 id="3-查看状态，迁移"><a href="#3-查看状态，迁移" class="headerlink" title="3.查看状态，迁移"></a>3.查看状态，迁移</h4><p><code>php app/console doctrine:migrations:status --show-versions</code> 查看版本状态以确保没有问题</p>
-<p><code>php app/console doctrine:migrations:migrate 20100621140655</code> 执行迁移 版本号可以从status命令中可以查看到</p>
+<p><code>php app/console doctrine:migrations:migrate 20100621140655</code> 执行迁移 版本号可以从status命令中可以查看到，如果版本号为以前执行过了；其实会执行该版本以后的down方法恢复到该版本；</p>
 <p>执行完之后其实我们在数据库中发现有一张表migration_versions（上面配置的）里面有一条数据就是执行的版本号</p>
 <h3 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h3><h4 id="跳过一个版本或者所有版本"><a href="#跳过一个版本或者所有版本" class="headerlink" title="跳过一个版本或者所有版本"></a>跳过一个版本或者所有版本</h4><p><code>php app/console doctrine:migrations:version YYYYMMDDHHMMSS --add</code> 其实就是向migration_versions增加了一条数据</p>
 <p><code>php app/console doctrine:migrations:version --add --all</code> 跳过所有；就是如果我们是一个新项目；数据库表都是新建的部署到生产环境之后通过<code>doctrine:schema:create</code> 来把所有表创建完之后；我们就不需要执行迁移，在之后的开发我们可以通过迁移的方式来进行</p>
@@ -401,11 +643,8 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
         // ... convert the data from markdown to html for instance
     }
 }
-</code></pre><h4 id="过滤一些表"><a href="#过滤一些表" class="headerlink" title="过滤一些表"></a>过滤一些表</h4><p><code>doctrine:migrations:diff</code> 这个比较命令是和数据库所有表和现有的实体映射文件进行比较，通常有时候我们需要过滤一些表不让其参与比较</p>
-<pre><code>doctrine:
-    dbal:
-        schema_filter: ~^(?!t_)~
-</code></pre><p>如果是多个连接配置就需要在每一个连接配置项中加入schema_filter 这一项；</p>
+</code></pre><h4 id="过滤一些表"><a href="#过滤一些表" class="headerlink" title="过滤一些表"></a>过滤一些表</h4><p><code>doctrine:migrations:diff</code> 这个比较命令是和数据库所有表和现有的实体映射文件进行比较，通常有时候我们需要过滤一些表不让其参与比较<br>​<br>    doctrine:<br>        dbal:<br>            schema<em>filter: ~^(?!t</em>)~</p>
+<p>如果是多个连接配置就需要在每一个连接配置项中加入schema_filter 这一项；</p>
 
           
         
@@ -615,7 +854,7 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

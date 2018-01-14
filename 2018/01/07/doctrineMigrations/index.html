@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="汤洲的博客">
 <meta property="og:description" content="symfony 数据迁移在实际开发中我们通常会随着开发进度推进,在现有的数据库里面改变表结构,增加新表等操作，我们一般在本地操作好了记录sql;最后上生产库执行sql;这样不方便管理，doctrine提供了一个库可以很好的记录改变日志，在symfony中集成了doctrineMigrationsBundle 阅读文档doctrinMigrationsBundle doctrine migratio">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-07T08:03:01.488Z">
+<meta property="og:updated_time" content="2018-01-07T08:26:10.829Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="symfony中的数据迁移(doctrineMigrationsBundle)">
 <meta name="twitter:description" content="symfony 数据迁移在实际开发中我们通常会随着开发进度推进,在现有的数据库里面改变表结构,增加新表等操作，我们一般在本地操作好了记录sql;最后上生产库执行sql;这样不方便管理，doctrine提供了一个库可以很好的记录改变日志，在symfony中集成了doctrineMigrationsBundle 阅读文档doctrinMigrationsBundle doctrine migratio">
@@ -342,11 +342,11 @@ class Version20180107063439 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $table = $schema-&gt;getTable(&apos;test1&apos;);
-        $table-&gt;dropColumn(&apos;test&apos;); //可以还原up中的操作；以防止错误之后可以回滚
+        $table-&gt;dropColumn(&apos;test&apos;); //可以还原up中的操作；以防止错误之后可以回滚到某一版本；
     }
 }
 </code></pre><h4 id="3-查看状态，迁移"><a href="#3-查看状态，迁移" class="headerlink" title="3.查看状态，迁移"></a>3.查看状态，迁移</h4><p><code>php app/console doctrine:migrations:status --show-versions</code> 查看版本状态以确保没有问题</p>
-<p><code>php app/console doctrine:migrations:migrate 20100621140655</code> 执行迁移 版本号可以从status命令中可以查看到</p>
+<p><code>php app/console doctrine:migrations:migrate 20100621140655</code> 执行迁移 版本号可以从status命令中可以查看到，如果版本号为以前执行过了；其实会执行该版本以后的down方法恢复到该版本；</p>
 <p>执行完之后其实我们在数据库中发现有一张表migration_versions（上面配置的）里面有一条数据就是执行的版本号</p>
 <h3 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h3><h4 id="跳过一个版本或者所有版本"><a href="#跳过一个版本或者所有版本" class="headerlink" title="跳过一个版本或者所有版本"></a>跳过一个版本或者所有版本</h4><p><code>php app/console doctrine:migrations:version YYYYMMDDHHMMSS --add</code> 其实就是向migration_versions增加了一条数据</p>
 <p><code>php app/console doctrine:migrations:version --add --all</code> 跳过所有；就是如果我们是一个新项目；数据库表都是新建的部署到生产环境之后通过<code>doctrine:schema:create</code> 来把所有表创建完之后；我们就不需要执行迁移，在之后的开发我们可以通过迁移的方式来进行</p>
@@ -397,11 +397,8 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
         // ... convert the data from markdown to html for instance
     }
 }
-</code></pre><h4 id="过滤一些表"><a href="#过滤一些表" class="headerlink" title="过滤一些表"></a>过滤一些表</h4><p><code>doctrine:migrations:diff</code> 这个比较命令是和数据库所有表和现有的实体映射文件进行比较，通常有时候我们需要过滤一些表不让其参与比较</p>
-<pre><code>doctrine:
-    dbal:
-        schema_filter: ~^(?!t_)~
-</code></pre><p>如果是多个连接配置就需要在每一个连接配置项中加入schema_filter 这一项；</p>
+</code></pre><h4 id="过滤一些表"><a href="#过滤一些表" class="headerlink" title="过滤一些表"></a>过滤一些表</h4><p><code>doctrine:migrations:diff</code> 这个比较命令是和数据库所有表和现有的实体映射文件进行比较，通常有时候我们需要过滤一些表不让其参与比较<br>​<br>    doctrine:<br>        dbal:<br>            schema<em>filter: ~^(?!t</em>)~</p>
+<p>如果是多个连接配置就需要在每一个连接配置项中加入schema_filter 这一项；</p>
 
       
     </div>
@@ -435,6 +432,10 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/14/symfony DoctrineFixturesBundle/" rel="prev" title="symfony DoctrineFixturesBundle的使用">
+                symfony DoctrineFixturesBundle的使用 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -511,7 +512,7 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
