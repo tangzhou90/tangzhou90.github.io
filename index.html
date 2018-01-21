@@ -232,6 +232,383 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/21/sf4  doctrine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="汤洲">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="汤洲的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/21/sf4  doctrine/" itemprop="url">symfony4的doctrine 简单使用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-21T14:49:30+08:00">
+                2018-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="symfony-doctrine-orm的使用"><a href="#symfony-doctrine-orm的使用" class="headerlink" title="symfony doctrine orm的使用"></a>symfony doctrine orm的使用</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><code>composer require doctrine maker</code></p>
+<h3 id="配置数据库连接"><a href="#配置数据库连接" class="headerlink" title="配置数据库连接"></a>配置数据库连接</h3><p>在项目目录.env 文件中,(.env.dist能够版本控制,在每次完成安装之后复制一份到.env文件中)</p>
+<pre><code>###&gt; doctrine/doctrine-bundle ###
+DATABASE_URL=mysql://root:123456@192.168.112.99:3306/test //配置数据库连接信息
+###&lt; doctrine/doctrine-bundle ###
+</code></pre><h3 id="创建一个实体类"><a href="#创建一个实体类" class="headerlink" title="创建一个实体类"></a>创建一个实体类</h3><p><code>php bin/console make:entity Product</code></p>
+<p>product 类中属性对应数据库中的字段</p>
+<pre><code>&lt;?php
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass=&quot;App\Repository\ProductRepository&quot;)
+ */
+class Product
+{
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type=&quot;integer&quot;)
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type=&quot;string&quot;, length=100)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type=&quot;decimal&quot;, scale=2, nullable=true)
+     */
+    private $price;
+
+    /**
+     * @ORM\Column(type=&quot;text&quot;)
+     */
+    private $description;
+
+    public function getId()
+    {
+        return $this-&gt;id;
+    }
+
+    public function getName()
+    {
+        return $this-&gt;name;
+    }
+
+    public function setName($name)
+    {
+        $this-&gt;name = $name;
+    }
+
+    public function getPrice()
+    {
+        return $this-&gt;price;
+    }
+
+    public function setPrice($price)
+    {
+        $this-&gt;price = $price;
+    }
+
+    public function getDescription()
+    {
+        return $this-&gt;description;
+    }
+
+    public function setDescription($description)
+    {
+        $this-&gt;description = $description;
+    }
+}
+</code></pre><h3 id="根据实体文件创建对应表-product"><a href="#根据实体文件创建对应表-product" class="headerlink" title="根据实体文件创建对应表(product)"></a>根据实体文件创建对应表(product)</h3><p>首先创建一个迁移类,<a href="https://tangzhou90.github.io/2018/01/07/doctrineMigrations/" target="_blank" rel="noopener">数据库迁移查看文档</a></p>
+<p><code>php bin/console doctrine:migrations:diff</code></p>
+<p>迁移文件会自动生成相关sql 信息；具体的查看迁移文档,然后在运行命令确定运行迁移</p>
+<p><code>php bin/console doctrine:migrations:migrate</code></p>
+<p>如果后续增加属性或者删除修改对象属性；都可以通过上述两个命令来更新到表中</p>
+<p>因为Prodct实体类中 属性都是private(私有)的,所以必须要给每个属性增加一个set,get方法以便操作获取该对象的属性，setId就不用；doctrine会自动对autoincrement(自动增长)字段就行设置</p>
+<h3 id="持久化一个对象到数据库"><a href="#持久化一个对象到数据库" class="headerlink" title="持久化一个对象到数据库"></a>持久化一个对象到数据库</h3><p>首先通过命令创建一个Controller</p>
+<p><code>php bin/console make:controller ProductController</code></p>
+<pre><code>&lt;?php
+
+namespace App\Controller;
+
+use App\Entity\Product;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
+
+class ProductController extends Controller
+{
+    /**
+     * @Route(&quot;/product&quot;, name=&quot;product&quot;)
+     */
+    public function index()
+    {
+        $em = $this-&gt;getDoctrine()-&gt;getManager();
+        $product = new Product();
+        $product-&gt;setName(&apos;test&apos;);
+        $product-&gt;setDescription(&apos;12312321&apos;);
+        $product-&gt;setPrice(11);
+        $em-&gt;persist($product);
+        $em-&gt;flush();
+
+        return new Response(&apos;Welcome to your new controller! &apos;.$product-&gt;getId());
+    }
+
+    /**
+     * @Route(&quot;/product/{id}&quot;, name=&quot;product_show&quot;)
+     */
+    public function showAction($id)
+    {
+        //获取所有数据
+        $product = $this-&gt;getDoctrine()-&gt;getRepository(Product::class)-&gt;findAll();
+
+        //通过一些条件获取(可能是多条,返回是数组)
+        $product = $this-&gt;getDoctrine()-&gt;getRepository(Product::class)-&gt;findBy(
+            array(
+                &apos;name&apos;=&gt;&apos;test&apos;,
+            ),
+            array(
+                &apos;price&apos;=&gt;&apos;ASC&apos;,//排序
+            ),
+            200,//limit
+            30 //offset
+        );
+
+        //通过一些条件获取(返回一条)
+        $product = $this-&gt;getDoctrine()-&gt;getRepository(Product::class)-&gt;findOneBy(
+            array(
+                &apos;name&apos;=&gt;&apos;test&apos;
+            )
+        );
+
+        //通过主键获取
+        $product = $this-&gt;getDoctrine()-&gt;getRepository(Product::class)-&gt;find($id);
+
+        if (!$product) {
+            throw $this-&gt;createNotFoundException(&quot;No product for id &quot;.$id);
+        }
+        return new Response(&apos;Check out this great product: &apos;.$product-&gt;getName());
+    }
+
+    /**
+     * @Route(&quot;/edit/{id}&quot;, name=&quot;edit_product&quot;)
+     */
+    public function updateAction($id)
+    {
+        //通过主键获取
+        $em = $this-&gt;getDoctrine()-&gt;getManager();
+        $product = $em-&gt;getRepository(Product::class)-&gt;find($id);
+
+        if (!$product) {
+            throw $this-&gt;createNotFoundException(&quot;No product for id &quot;.$id);
+        }
+
+        $product-&gt;setName(&apos;new name&apos;);
+        $em-&gt;flush();
+
+        return $this-&gt;redirectToRoute(&apos;product_show&apos;, [
+            &apos;id&apos; =&gt; $product-&gt;getId()
+        ]);
+    }
+
+    /**
+     * @Route(&quot;/del/{id}&quot;, name=&quot;del_product&quot;)
+     */
+    public function delAction($id)
+    {
+        $em = $this-&gt;getDoctrine()-&gt;getManager();
+        $product = $em-&gt;getRepository(Product::class)-&gt;find($id);
+        if (!$product) {
+            throw $this-&gt;createNotFoundException(&quot;No product for id &quot;.$id);
+        }
+        $em-&gt;remove($product);
+        $em-&gt;flush();
+
+        return new Response(&quot;删除成功&quot;);
+    }
+}
+</code></pre><p>上面的product 已经列出简单的增删改查方法</p>
+<p>如果没有一个复杂的查询怎么办; 我们可以自定义一个查询方法到各个对像的Repository文件中(我们make:entity的时候其实还生成了一个对应的Repository文件默认在Repository文件夹中)</p>
+<pre><code>&lt;?php
+
+namespace App\Repository;
+
+use App\Entity\Product;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Symfony\Bridge\Doctrine\RegistryInterface;
+
+class ProductRepository extends ServiceEntityRepository
+{
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, Product::class);
+    }
+
+
+    public function findByTestQueryBuilder($value)
+    {
+        return $this-&gt;createQueryBuilder(&apos;p&apos;)
+            -&gt;where(&apos;p.name = :value&apos;)-&gt;setParameter(&apos;value&apos;, $value)
+            -&gt;orderBy(&apos;p.id&apos;, &apos;ASC&apos;)
+            -&gt;setMaxResults(10)
+            -&gt;getQuery()
+            -&gt;getResult()
+        ;
+    }
+
+    public function findByTestDql()
+    {
+        $em = $this-&gt;getEntityManager();
+
+        $query = $em-&gt;createQuery(
+            &apos;SELECT p
+        FROM App\Entity\Product p
+        WHERE p.price &gt; :price
+        ORDER BY p.price ASC&apos;
+        )-&gt;setParameter(&apos;price&apos;, 10);
+
+        // returns an array of Product objects
+        return $query-&gt;execute();
+    }
+
+    public function findByTestSql()
+    {
+        $conn = $this-&gt;getEntityManager()-&gt;getConnection();
+
+        $sql = &apos;
+        SELECT * FROM product p
+        WHERE p.price &gt; :price
+        ORDER BY p.price ASC
+        &apos;;
+        $stmt = $conn-&gt;prepare($sql);
+        $stmt-&gt;execute([&apos;price&apos; =&gt; 10]);
+
+        // returns an array of arrays (i.e. a raw data set)
+        return $stmt-&gt;fetchAll();
+    }
+
+}
+</code></pre><p>在controller 中调用Repository中的方法</p>
+<pre><code>/**
+ * @Route(&quot;/product/test&quot;, name=&quot;pro_test&quot;)
+ */
+public function testAction()
+{
+    $productRepository = $this-&gt;getDoctrine()-&gt;getRepository(Product::class);
+
+    $p1 = $productRepository-&gt;findByTestQueryBuilder(&quot;test&quot;);
+    $p2 = $productRepository-&gt;findByTestDql();
+    $p3 = $productRepository-&gt;findByTestSql();
+
+    return new Response(&quot;test&quot;);
+}
+</code></pre>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/14/symfony DoctrineFixturesBundle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -856,7 +1233,7 @@ class Version20130326212938 extends AbstractMigration implements ContainerAwareI
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
