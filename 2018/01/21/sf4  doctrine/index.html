@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="汤洲的博客">
 <meta property="og:description" content="symfony doctrine orm的使用安装composer require doctrine maker 配置数据库连接在项目目录.env 文件中,(.env.dist能够版本控制,在每次完成安装之后复制一份到.env文件中) ###&amp;gt; doctrine/doctrine-bundle ### DATABASE_URL=mysql://root:123456@192.168.112.">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-21T06:50:18.668Z">
+<meta property="og:updated_time" content="2018-01-21T06:57:08.969Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="symfony4的doctrine 简单使用">
 <meta name="twitter:description" content="symfony doctrine orm的使用安装composer require doctrine maker 配置数据库连接在项目目录.env 文件中,(.env.dist能够版本控制,在每次完成安装之后复制一份到.env文件中) ###&amp;gt; doctrine/doctrine-bundle ### DATABASE_URL=mysql://root:123456@192.168.112.">
@@ -483,7 +483,7 @@ class ProductController extends Controller
     }
 }
 </code></pre><p>上面的product 已经列出简单的增删改查方法</p>
-<p>如果没有一个复杂的查询怎么办; 我们可以自定义一个查询方法到各个对像的Repository文件中(我们make:entity的时候其实还生成了一个对应的Repository文件默认在Repository文件夹中)</p>
+<p>如果有一个复杂的查询怎么办; 我们可以自定义一个查询方法到各个对像的Repository文件中(我们make:entity的时候其实还生成了一个对应的Repository文件默认在Repository文件夹中)</p>
 <pre><code>&lt;?php
 
 namespace App\Repository;
